@@ -46,6 +46,7 @@
   max-width: 600px;  /* Limit width for better readability */
   margin: 0 auto;    /* Center the container */
   padding: 20px;
+  font-size: 16px;
 }
 
 /* Form container styles */
@@ -119,6 +120,8 @@
   transition: background-color 0.2s;
   user-select: none;  /* Prevent text selection while dragging */
   background: white;  /* Ensure background is solid */
+  font-size: 1.1rem;
+  padding: 15px;
 }
 
 /* Delete button specific styles */
@@ -172,10 +175,10 @@
 .category-tag.health { background-color: #E91E63; }
 
 /* Priority colors */
-.priority-tag.urgent { background-color: #f44336; }
-.priority-tag.high { background-color: #ff9800; }
-.priority-tag.medium { background-color: #2196f3; }
-.priority-tag.low { background-color: #4caf50; }
+.priority-tag.Urgente { background-color: #f44336; }
+.priority-tag.Alta { background-color: #ff9800; }
+.priority-tag.Media { background-color: #2196f3; }
+.priority-tag.Baja { background-color: #4caf50; }
 
 .due-date {
   color: #666;
@@ -236,4 +239,150 @@
     transform: translateX(0);
     opacity: 1;
   }
+}
+
+/* Increase font sizes */
+.todo-app {
+  font-size: 16px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+}
+
+.todo-input,
+.category-select,
+.priority-select,
+.responsible-select,
+.date-picker {
+  font-size: 1.1rem;
+  padding: 12px;
+}
+
+.todo-item {
+  font-size: 1.1rem;
+  padding: 15px;
+}
+
+/* Form layout */
+.form-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+/* Make first form-row (with text input) full width */
+.form-row:first-child {
+  width: 100%;
+}
+
+/* Make the text input take full width */
+.form-row:first-child .todo-input {
+  width: 100%;
+  min-width: 300px;
+}
+
+/* Make second form-row (with selects) flex and wrap */
+.form-row:last-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+/* Adjust select widths */
+.responsible-select,
+.category-select,
+.priority-select,
+.date-picker {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* Filters container */
+.filters-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.responsible-filters {
+  margin-top: 10px;
+}
+
+/* Add responsible tag */
+.responsible-tag {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  color: white;
+  background-color: #9c27b0;
+  margin-right: 10px;
+}
+
+/* Time select styles */
+.time-select {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-right: 10px;
+  flex: 1;
+  min-width: 120px;
+}
+
+/* Time tag styles */
+.time-tag {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  color: white;
+  background-color: #607d8b;
+  margin-right: 10px;
+}
+
+/* Specific time colors */
+.time-tag.mañana { background-color: #ffd54f; }
+.time-tag.tarde { background-color: #ff7043; }
+.time-tag.noche { background-color: #5c6bc0; }
+
+/* Standardize form element sizes */
+.responsible-select,
+.priority-select,
+.time-select,
+.date-picker {
+  font-size: 1rem;
+  padding: 10px;
+  height: 40px;
+  flex: 1;
+  min-width: 120px;
+}
+
+/* Standardize metadata tag sizes */
+.responsible-tag,
+.priority-tag,
+.time-tag,
+.due-date {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  color: white;
+  margin-right: 10px;
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+}
+
+.due-date {
+  color: #666;
+  background-color: #f0f0f0;
+}
+
+/* Adjust button height to match selects */
+.add-button {
+  height: 40px;
+  font-size: 1rem;
+  padding: 0 20px;
 }

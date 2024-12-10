@@ -4,6 +4,18 @@ import DatePicker from 'react-datepicker'
 import "react-datepicker/dist/react-datepicker.css"
 import './App.css'
 import { StrictMode } from 'react'
+import { db } from './firebase';
+import { 
+  collection, 
+  addDoc, 
+  getDocs, 
+  deleteDoc, 
+  doc, 
+  updateDoc, 
+  onSnapshot,
+  query,
+  orderBy 
+} from 'firebase/firestore';
 
 function App() {
   // Enhanced state management
@@ -18,22 +30,32 @@ function App() {
   const [notifications, setNotifications] = useState([])
   const [showNotification, setShowNotification] = useState(false)
   const [notificationMessage, setNotificationMessage] = useState('')
-  
+  const [responsible, setResponsible] = useState('Marian')
+  const [responsibleFilter, setResponsibleFilter] = useState('todos')
+  const [timeOfDay, setTimeOfDay] = useState('morning')
+
   // Categories and priorities
-  const categories = ['personal', 'work', 'shopping', 'health']
-  const priorities = ['low', 'medium', 'high', 'urgent']
+  const priorities = ['Baja', 'Media', 'Alta', 'Urgente']
+  const responsiblePersons = ['Marian', 'Javier', 'Rosi']
+  const timeOptions = ['Mañana', 'Tarde', 'Noche']
 
   // Load and save with enhanced data
   useEffect(() => {
-    const savedTodos = localStorage.getItem('todos')
-    if (savedTodos) {
-      setTodos(JSON.parse(savedTodos))
-    }
-  }, [])
+    // Create a query to get todos ordered by creation time
+    const q = query(collection(db, 'todos'), orderBy('created', 'desc'));
+    
+    // Set up real-time listener
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const todosData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setTodos(todosData);
+    });
 
-  useEffect(() => {
-    localStorage.setItem('todos', JSON.stringify(todos))
-  }, [todos])
+    // Cleanup subscription
+    return () => unsubscribe();
+  }, []);
 
   // Add reminder check on component mount and when todos change
   useEffect(() => {
@@ -50,7 +72,7 @@ function App() {
       if (upcoming.length > 0) {
         const newNotifications = upcoming.map(todo => ({
           id: todo.id,
-          message: `"${todo.text}" is due ${new Date(todo.dueDate).toLocaleString()}`
+          message: `"${todo.text}" vence el ${new Date(todo.dueDate).toLocaleString()}`
         }))
         setNotifications(newNotifications)
       }
@@ -64,24 +86,28 @@ function App() {
   }, [todos])
 
   // Enhanced add todo function
-  const addTodo = (e) => {
-    e.preventDefault()
-    if (!inputValue.trim()) return
+  const addTodo = async (e) => {
+    e.preventDefault();
+    if (!inputValue.trim()) return;
 
     const newTodo = {
-      id: Date.now(),
       text: inputValue,
       completed: false,
-      category,
       priority,
+      responsible,
+      timeOfDay,
       dueDate: dueDate.toISOString(),
       subtasks: [],
       created: new Date().toISOString()
-    }
+    };
 
-    setTodos([...todos, newTodo])
-    setInputValue('')
-  }
+    try {
+      await addDoc(collection(db, 'todos'), newTodo);
+      setInputValue('');
+    } catch (error) {
+      console.error("Error adding todo: ", error);
+    }
+  };
 
   // Edit todo function
   const editTodo = (id, newText) => {
@@ -132,26 +158,41 @@ function App() {
       return true
     })
     .filter(todo => {
+      // Filter by responsible person
+      if (responsibleFilter !== 'todos') return todo.responsible === responsibleFilter
+      return true
+    })
+    .filter(todo => {
       // Filter by search term
       return todo.text.toLowerCase().includes(searchTerm.toLowerCase())
     })
     .sort((a, b) => {
       // Sort by priority
-      const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 }
+      const priorityOrder = { Urgente: 0, Alta: 1, Media: 2, Baja: 3 }
       return priorityOrder[a.priority] - priorityOrder[b.priority]
     })
 
   // Function to toggle todo completion status
-  const toggleTodo = (id) => {
-    setTodos(todos.map(todo => 
-      todo.id === id ? {...todo, completed: !todo.completed} : todo
-    ))
-  }
+  const toggleTodo = async (id) => {
+    const todoRef = doc(db, 'todos', id);
+    const todo = todos.find(t => t.id === id);
+    try {
+      await updateDoc(todoRef, {
+        completed: !todo.completed
+      });
+    } catch (error) {
+      console.error("Error updating todo: ", error);
+    }
+  };
 
   // Function to delete a todo
-  const deleteTodo = (id) => {
-    setTodos(todos.filter(todo => todo.id !== id));
-  }
+  const deleteTodo = async (id) => {
+    try {
+      await deleteDoc(doc(db, 'todos', id));
+    } catch (error) {
+      console.error("Error deleting todo: ", error);
+    }
+  };
 
   // Show notification
   const showNotificationMessage = (message) => {
@@ -169,24 +210,24 @@ function App() {
       )}
       {notifications.length > 0 && (
         <div className="notifications-panel">
-          <h3>Upcoming Tasks</h3>
+          <h3>Tareas Próximas</h3>
           {notifications.map(notif => (
             <div 
               key={notif.id} 
               className="notification-item"
               onClick={() => showNotificationMessage(notif.message)}
             >
-              {notif.message}
+              {notif.message.replace('is due', 'vence el')}
             </div>
           ))}
         </div>
       )}
-      <h1>Tasks for Wifo</h1>
+      <h1>Tareas Javier y Marian</h1>
 
       {/* Search bar */}
       <input
         type="text"
-        placeholder="Search todos..."
+        placeholder="Buscar Tareas..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="search-input"
@@ -194,54 +235,82 @@ function App() {
 
       {/* Enhanced todo form */}
       <form onSubmit={addTodo} className="todo-form">
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          placeholder="What needs to be done?"
-          className="todo-input"
-        />
+        <div className="form-row">
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="Escribe Aquí Tu Tarea..."
+            className="todo-input"
+          />
+        </div>
         
-        <select 
-          value={category} 
-          onChange={(e) => setCategory(e.target.value)}
-          className="category-select"
-        >
-          {categories.map(cat => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
-        </select>
+        <div className="form-row">
+          <select 
+            value={responsible} 
+            onChange={(e) => setResponsible(e.target.value)}
+            className="responsible-select"
+          >
+            {responsiblePersons.map(person => (
+              <option key={person} value={person}>{person}</option>
+            ))}
+          </select>
 
-        <select 
-          value={priority} 
-          onChange={(e) => setPriority(e.target.value)}
-          className="priority-select"
-        >
-          {priorities.map(pri => (
-            <option key={pri} value={pri}>{pri}</option>
-          ))}
-        </select>
+          <select 
+            value={priority} 
+            onChange={(e) => setPriority(e.target.value)}
+            className="priority-select"
+          >
+            {priorities.map(pri => (
+              <option key={pri} value={pri}>{pri}</option>
+            ))}
+          </select>
 
-        <DatePicker
-          selected={dueDate}
-          onChange={date => setDueDate(date)}
-          className="date-picker"
-        />
+          <select 
+            value={timeOfDay} 
+            onChange={(e) => setTimeOfDay(e.target.value)}
+            className="time-select"
+          >
+            {timeOptions.map(time => (
+              <option key={time} value={time}>{time}</option>
+            ))}
+          </select>
 
-        <button type="submit" className="add-button">Add</button>
+          <DatePicker
+            selected={dueDate}
+            onChange={date => setDueDate(date)}
+            className="date-picker"
+          />
+
+          <button type="submit" className="add-button">Agregar</button>
+        </div>
       </form>
 
-      {/* Filter buttons */}
-      <div className="filters">
-        {['all', 'active', 'completed'].map(filterType => (
-          <button
-            key={filterType}
-            onClick={() => setFilter(filterType)}
-            className={filter === filterType ? 'active' : ''}
-          >
-            {filterType.charAt(0).toUpperCase() + filterType.slice(1)}
-          </button>
-        ))}
+      {/* Add responsible filter buttons */}
+      <div className="filters-container">
+        <div className="filters">
+          {['Todos', 'Activos', 'Completados'].map(filterType => (
+            <button
+              key={filterType}
+              onClick={() => setFilter(filterType === 'Todos' ? 'all' : filterType === 'Activos' ? 'active' : 'completed')}
+              className={filter === (filterType === 'Todos' ? 'all' : filterType === 'Activos' ? 'active' : 'completed') ? 'active' : ''}
+            >
+              {filterType}
+            </button>
+          ))}
+        </div>
+        
+        <div className="filters responsible-filters">
+          {['todos', ...responsiblePersons].map(person => (
+            <button
+              key={person}
+              onClick={() => setResponsibleFilter(person)}
+              className={responsibleFilter === person ? 'active' : ''}
+            >
+              {person}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Drag and drop todo list */}
@@ -292,14 +361,17 @@ function App() {
                       )}
 
                       <div className="todo-metadata">
-                        <span className={`category-tag ${todo.category}`}>
-                          {todo.category}
+                        <span className="responsible-tag">
+                          {todo.responsible}
                         </span>
                         <span className={`priority-tag ${todo.priority}`}>
                           {todo.priority}
                         </span>
+                        <span className="time-tag">
+                          {todo.timeOfDay}
+                        </span>
                         <span className="due-date">
-                          Due: {new Date(todo.dueDate).toLocaleDateString()}
+                          Vence: {new Date(todo.dueDate).toLocaleDateString()}
                         </span>
                       </div>
 
@@ -307,7 +379,7 @@ function App() {
                         onClick={() => deleteTodo(todo.id)}
                         className="delete-button"
                       >
-                        Delete
+                        Eliminar
                       </button>
                     </li>
                   )}
