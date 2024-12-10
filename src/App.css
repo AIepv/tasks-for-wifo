@@ -666,4 +666,58 @@ body {
     padding: 8px;
     font-size: 0.9rem;
   }
+
+  /* Adjust task input width */
+  .form-row:first-child .todo-input {
+    min-width: unset;
+    width: 100%;
+    margin-bottom: 5px;
+  }
+
+  /* Improve tag spacing in tasks */
+  .todo-metadata {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    margin: 8px 0;
+  }
+
+  .responsible-tag,
+  .priority-tag,
+  .time-tag,
+  .due-date {
+    font-size: 0.8rem;
+    padding: 3px 6px;
+    min-width: unset;
+    width: auto;
+    height: auto;
+    justify-content: center;
+    white-space: nowrap;
+  }
+
+  /* Make todo items more spacious */
+  .todo-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+    gap: 6px;
+  }
+
+  /* Adjust task text */
+  .todo-item span {
+    width: 100%;
+    margin: 4px 0;
+  }
+
+  /* Keep checkbox and buttons in a row */
+  .todo-item input[type="checkbox"] {
+    margin-right: 8px;
+  }
+
+  .button-group {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
 }
