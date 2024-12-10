@@ -720,4 +720,80 @@ body {
     justify-content: flex-end;
     margin-top: 8px;
   }
+
+  /* Fix task item layout */
+  .todo-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  /* Task text and checkbox layout */
+  .todo-item > div:first-child {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .todo-item input[type="checkbox"] {
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  .todo-item span {
+    flex: 1;
+    padding: 4px 0;
+  }
+
+  /* Metadata grid layout */
+  .todo-metadata {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    gap: 8px;
+    margin: 4px 0;
+    padding: 0 4px;
+  }
+
+  /* Tag styles */
+  .responsible-tag,
+  .priority-tag,
+  .time-tag {
+    width: auto;
+    min-width: unset;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    display: flex;
+    justify-content: center;
+    margin: 0;
+  }
+
+  /* Due date style */
+  .due-date {
+    grid-column: 1 / -1;
+    width: 100%;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    margin: 0;
+  }
+
+  /* Button group */
+  .button-group {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 4px;
+  }
+
+  .edit-button,
+  .delete-button {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    flex: 0 0 auto;
+  }
 }
