@@ -1,5 +1,11 @@
+body {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+  min-height: 100vh;
+  margin: 0;
+}
+
 #root {
-  max-width: 1280px;
+  max-width: 1440px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
@@ -43,10 +49,13 @@
 
 /* Main container styles */
 .todo-app {
-  max-width: 600px;  /* Limit width for better readability */
-  margin: 0 auto;    /* Center the container */
-  padding: 20px;
-  font-size: 16px;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
 }
 
 /* Form container styles */
@@ -61,8 +70,9 @@
   flex: 1;           /* Take up remaining space */
   padding: 8px;
   font-size: 16px;
-  border: 1px solid #ddd;
+  border: 1px solid #e2e8f0;
   border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 /* Common button styles */
@@ -90,10 +100,17 @@
 /* Individual filter button styles */
 .filters button {
   padding: 8px 16px;
-  border: 1px solid #ddd;
+  border: 1px solid #e2e8f0;
   background: white;
   border-radius: 4px;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.filters button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Active filter button state */
@@ -111,10 +128,11 @@
 
 /* Individual todo item styles */
 .todo-item {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 15px;
   align-items: center;
-  gap: 10px;
-  padding: 10px;
+  padding: 15px;
   border-bottom: 1px solid #ddd;
   cursor: grab;
   transition: background-color 0.2s;
@@ -122,11 +140,21 @@
   background: white;  /* Ensure background is solid */
   font-size: 1.1rem;
   padding: 15px;
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #edf2f7;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.todo-item:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
 }
 
 /* Delete button specific styles */
 .delete-button {
-  margin-left: auto;  /* Push button to the right */
   background-color: #ff4444;
 }
 
@@ -157,7 +185,9 @@
 .todo-metadata {
   display: flex;
   gap: 10px;
-  margin-left: 20px;
+  align-items: center;
+  justify-content: flex-start;
+  margin-left: 0;
 }
 
 .category-tag,
@@ -175,10 +205,9 @@
 .category-tag.health { background-color: #E91E63; }
 
 /* Priority colors */
-.priority-tag.Urgente { background-color: #f44336; }
-.priority-tag.Alta { background-color: #ff9800; }
-.priority-tag.Media { background-color: #2196f3; }
-.priority-tag.Baja { background-color: #4caf50; }
+.priority-tag.Normal { background-color: #4CAF50; }     /* Green */
+.priority-tag.Importante { background-color: #FFC107; } /* Yellow */
+.priority-tag.Urgente { background-color: #F44336; }    /* Red */
 
 .due-date {
   color: #666;
@@ -247,8 +276,11 @@
 }
 
 h1 {
-  font-size: 2.5rem;
+  font-size: 2.8rem;
   margin-bottom: 2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.1);
 }
 
 .todo-input,
@@ -319,9 +351,13 @@ h1 {
   border-radius: 12px;
   font-size: 0.9rem;
   color: white;
-  background-color: #9c27b0;
   margin-right: 10px;
 }
+
+/* Add specific colors for each person */
+.responsible-tag.marian { background-color: #7B1FA2; }  /* Deep Purple */
+.responsible-tag.javier { background-color: #1565C0; }  /* Deep Blue */
+.responsible-tag.rosi { background-color: #EF6C00; }    /* Deep Orange */
 
 /* Time select styles */
 .time-select {
@@ -344,9 +380,9 @@ h1 {
 }
 
 /* Specific time colors */
-.time-tag.mañana { background-color: #ffd54f; }
-.time-tag.tarde { background-color: #ff7043; }
-.time-tag.noche { background-color: #5c6bc0; }
+.time-tag.mañana { background-color: #4CAF50; }
+.time-tag.tarde { background-color: #009688; }
+.time-tag.noche { background-color: #607D8B; }
 
 /* Standardize form element sizes */
 .responsible-select,
@@ -386,3 +422,123 @@ h1 {
   font-size: 1rem;
   padding: 0 20px;
 }
+
+.edit-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  margin: 5px 0;
+}
+
+.edit-form input,
+.edit-form select,
+.edit-form .date-picker {
+  flex: 1;
+  min-width: 120px;
+}
+
+.save-button,
+.cancel-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.save-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.cancel-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.todo-item span {
+  cursor: pointer;
+}
+
+.todo-item span:hover {
+  background-color: #f0f0f0;
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.edit-button {
+  padding: 8px 16px;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.edit-button:hover {
+  background-color: #1976D2;
+}
+
+/* Update root background */
+body {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+  min-height: 100vh;
+  margin: 0;
+}
+
+/* Person-specific colors - Warm colors */
+.responsible-tag.marian { background-color: #E91E63; }  /* Pink */
+.responsible-tag.javier { background-color: #FF5722; }  /* Deep Orange */
+.responsible-tag.rosi { background-color: #FF9800; }    /* Orange */
+
+/* Priority colors - Cool colors */
+.priority-tag.Urgente { background-color: #f44336; }    /* Red */
+.priority-tag.Alta { background-color: #9C27B0; }       /* Purple */
+.priority-tag.Media { background-color: #3F51B5; }      /* Indigo */
+.priority-tag.Baja { background-color: #2196F3; }       /* Blue */
+
+/* Time of day colors - Nature colors */
+.time-tag.mañana { background-color: #4CAF50; }        /* Green */
+.time-tag.tarde { background-color: #009688; }         /* Teal */
+.time-tag.noche { background-color: #607D8B; }         /* Blue Grey */
+
+/* Make tags fixed width for better alignment */
+.responsible-tag,
+.priority-tag,
+.time-tag {
+  min-width: 100px;
+  text-align: center;
+  justify-content: center;
+}
+
+/* Calendar styles */
+.calendar-container {
+  margin-top: 20px;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.view-toggle {
+  margin: 20px 0;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.calendar-event {
+  border-radius: 4px !important;
+}
+
+.calendar-event.priority-normal { background-color: #4CAF50 !important; }
+.calendar-event.priority-importante { background-color: #FFC107 !important; }
+.calendar-event.priority-urgente { background-color: #F44336 !important; }

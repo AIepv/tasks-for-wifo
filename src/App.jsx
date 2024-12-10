@@ -16,6 +16,20 @@ import {
   query,
   orderBy 
 } from 'firebase/firestore';
+import CalendarView from './CalendarView';
+
+const getDaysUntil = (date) => {
+  const today = new Date();
+  const dueDate = new Date(date);
+  today.setHours(0, 0, 0, 0);
+  dueDate.setHours(0, 0, 0, 0);
+  const diffTime = dueDate - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  if (diffDays === 0) return 'Hoy';
+  if (diffDays === 1) return 'Mañana';
+  if (diffDays < 0) return `Hace ${-diffDays} días`;
+  return `En ${diffDays} días`;
+};
 
 function App() {
   // Enhanced state management
@@ -33,9 +47,11 @@ function App() {
   const [responsible, setResponsible] = useState('Marian')
   const [responsibleFilter, setResponsibleFilter] = useState('todos')
   const [timeOfDay, setTimeOfDay] = useState('morning')
+  const [editingTodo, setEditingTodo] = useState(null);
+  const [view, setView] = useState('list'); // 'list' or 'calendar'
 
   // Categories and priorities
-  const priorities = ['Baja', 'Media', 'Alta', 'Urgente']
+  const priorities = ['Normal', 'Importante', 'Urgente']
   const responsiblePersons = ['Marian', 'Javier', 'Rosi']
   const timeOptions = ['Mañana', 'Tarde', 'Noche']
 
@@ -110,13 +126,24 @@ function App() {
   };
 
   // Edit todo function
-  const editTodo = (id, newText) => {
-    if (!newText.trim()) return;  // Don't allow empty text
-    setTodos(todos.map(todo => 
-      todo.id === id ? {...todo, text: newText} : todo
-    ));
-    setEditingId(null);
-  }
+  const editTodo = async (id, updates) => {
+    const todoRef = doc(db, 'todos', id);
+    try {
+      await updateDoc(todoRef, updates);
+      setEditingTodo(null);
+    } catch (error) {
+      console.error("Error updating todo: ", error);
+    }
+  };
+
+  // Add a function to start editing
+  const startEditing = (todo) => {
+    console.log('Starting edit for:', todo);
+    setEditingTodo({
+      ...todo,
+      dueDate: new Date(todo.dueDate)
+    });
+  };
 
   // Add subtask function
   const addSubtask = (todoId, subtaskText) => {
@@ -224,6 +251,21 @@ function App() {
       )}
       <h1>Tareas Javier y Marian</h1>
 
+      <div className="view-toggle">
+        <button 
+          onClick={() => setView('list')}
+          className={view === 'list' ? 'active' : ''}
+        >
+          Lista
+        </button>
+        <button 
+          onClick={() => setView('calendar')}
+          className={view === 'calendar' ? 'active' : ''}
+        >
+          Calendario
+        </button>
+      </div>
+
       {/* Search bar */}
       <input
         type="text"
@@ -279,6 +321,7 @@ function App() {
           <DatePicker
             selected={dueDate}
             onChange={date => setDueDate(date)}
+            dateFormat="dd/MM/yyyy"
             className="date-picker"
           />
 
@@ -313,83 +356,150 @@ function App() {
         </div>
       </div>
 
-      {/* Drag and drop todo list */}
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="todos">
-          {(provided) => (
-            <ul 
-              className="todo-list"
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-            >
-              {filteredAndSearchedTodos.map((todo, index) => (
-                <Draggable 
-                  key={todo.id.toString()} 
-                  draggableId={todo.id.toString()} 
-                  index={index}
-                >
-                  {(provided, snapshot) => (
-                    <li
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      className={`todo-item priority-${todo.priority} ${snapshot.isDragging ? 'dragging' : ''}`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={todo.completed}
-                        onChange={() => toggleTodo(todo.id)}
-                      />
-                      
-                      {editingId === todo.id ? (
-                        <input
-                          type="text"
-                          value={todo.text}
-                          onChange={(e) => editTodo(todo.id, e.target.value)}
-                          onBlur={() => setEditingId(null)}
-                          autoFocus
-                        />
-                      ) : (
-                        <span
-                          onDoubleClick={() => setEditingId(todo.id)}
-                          style={{
-                            textDecoration: todo.completed ? 'line-through' : 'none'
-                          }}
-                        >
-                          {todo.text}
-                        </span>
-                      )}
-
-                      <div className="todo-metadata">
-                        <span className="responsible-tag">
-                          {todo.responsible}
-                        </span>
-                        <span className={`priority-tag ${todo.priority}`}>
-                          {todo.priority}
-                        </span>
-                        <span className="time-tag">
-                          {todo.timeOfDay}
-                        </span>
-                        <span className="due-date">
-                          Vence: {new Date(todo.dueDate).toLocaleDateString()}
-                        </span>
-                      </div>
-
-                      <button 
-                        onClick={() => deleteTodo(todo.id)}
-                        className="delete-button"
+      {/* Conditional rendering of list or calendar view */}
+      {view === 'list' ? (
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="todos">
+            {(provided) => (
+              <ul 
+                className="todo-list"
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+              >
+                {filteredAndSearchedTodos.map((todo, index) => (
+                  <Draggable 
+                    key={todo.id.toString()} 
+                    draggableId={todo.id.toString()} 
+                    index={index}
+                  >
+                    {(provided, snapshot) => (
+                      <li
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        className={`todo-item priority-${todo.priority} ${snapshot.isDragging ? 'dragging' : ''}`}
                       >
-                        Eliminar
-                      </button>
-                    </li>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </ul>
-          )}
-        </Droppable>
-      </DragDropContext>
+                        <input
+                          type="checkbox"
+                          checked={todo.completed}
+                          onChange={() => toggleTodo(todo.id)}
+                        />
+                        
+                        {editingTodo && editingTodo.id === todo.id ? (
+                          <div className="edit-form">
+                            <input
+                              type="text"
+                              value={editingTodo.text}
+                              onChange={(e) => setEditingTodo({...editingTodo, text: e.target.value})}
+                              className="todo-input"
+                            />
+                            <select 
+                              value={editingTodo.responsible}
+                              onChange={(e) => setEditingTodo({...editingTodo, responsible: e.target.value})}
+                              className="responsible-select"
+                            >
+                              {responsiblePersons.map(person => (
+                                <option key={person} value={person}>{person}</option>
+                              ))}
+                            </select>
+                            <select 
+                              value={editingTodo.priority}
+                              onChange={(e) => setEditingTodo({...editingTodo, priority: e.target.value})}
+                              className="priority-select"
+                            >
+                              {priorities.map(pri => (
+                                <option key={pri} value={pri}>{pri}</option>
+                              ))}
+                            </select>
+                            <select 
+                              value={editingTodo.timeOfDay}
+                              onChange={(e) => setEditingTodo({...editingTodo, timeOfDay: e.target.value})}
+                              className="time-select"
+                            >
+                              {timeOptions.map(time => (
+                                <option key={time} value={time}>{time}</option>
+                              ))}
+                            </select>
+                            <DatePicker
+                              selected={editingTodo.dueDate}
+                              onChange={(date) => setEditingTodo({...editingTodo, dueDate: date})}
+                              dateFormat="dd/MM/yyyy"
+                              className="date-picker"
+                            />
+                            <button 
+                              onClick={() => editTodo(todo.id, {
+                                text: editingTodo.text,
+                                responsible: editingTodo.responsible,
+                                priority: editingTodo.priority,
+                                timeOfDay: editingTodo.timeOfDay,
+                                dueDate: editingTodo.dueDate.toISOString()
+                              })}
+                              className="save-button"
+                            >
+                              Guardar
+                            </button>
+                            <button 
+                              onClick={() => setEditingTodo(null)}
+                              className="cancel-button"
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <span
+                              style={{
+                                textDecoration: todo.completed ? 'line-through' : 'none'
+                              }}
+                            >
+                              {todo.text}
+                            </span>
+                            <div className="todo-metadata">
+                              <span className={`responsible-tag ${todo.responsible.toLowerCase()}`}>
+                                {todo.responsible}
+                              </span>
+                              <span className={`priority-tag ${todo.priority}`}>
+                                {todo.priority}
+                              </span>
+                              <span className="time-tag">
+                                {todo.timeOfDay}
+                              </span>
+                              <span className="due-date">
+                                Vence: {new Date(todo.dueDate).toLocaleDateString('es-ES', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                  year: '2-digit'
+                                })} ({getDaysUntil(todo.dueDate)})
+                              </span>
+                            </div>
+                            <div className="button-group">
+                              <button 
+                                onClick={() => startEditing(todo)}
+                                className="edit-button"
+                              >
+                                Editar
+                              </button>
+                              <button 
+                                onClick={() => deleteTodo(todo.id)}
+                                className="delete-button"
+                              >
+                                Eliminar
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </li>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </ul>
+            )}
+          </Droppable>
+        </DragDropContext>
+      ) : (
+        <CalendarView todos={filteredAndSearchedTodos} />
+      )}
     </div>
   )
 }
