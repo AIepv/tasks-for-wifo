@@ -796,4 +796,41 @@ body {
     font-size: 0.8rem;
     flex: 0 0 auto;
   }
+
+  /* Increase spacing between todo items */
+  .todo-item {
+    margin-bottom: 12px;
+    padding: 12px;
+    gap: 10px;
+    border: 1px solid #edf2f7;
+    background: white;
+    border-radius: 8px;
+  }
+
+  /* Adjust internal spacing */
+  .todo-metadata {
+    margin: 8px 0;
+    gap: 10px;
+    padding: 4px;
+  }
+
+  /* Adjust tag spacing */
+  .responsible-tag,
+  .priority-tag,
+  .time-tag {
+    margin: 2px;
+    padding: 4px 10px;
+  }
+
+  /* Adjust due date spacing */
+  .due-date {
+    margin: 4px 2px;
+    padding: 4px 10px;
+  }
+
+  /* Adjust button spacing */
+  .button-group {
+    margin-top: 10px;
+    gap: 10px;
+  }
 }
