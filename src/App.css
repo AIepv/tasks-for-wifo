@@ -542,3 +542,74 @@ body {
 .calendar-event.priority-normal { background-color: #4CAF50 !important; }
 .calendar-event.priority-importante { background-color: #FFC107 !important; }
 .calendar-event.priority-urgente { background-color: #F44336 !important; }
+
+/* Mobile responsiveness */
+@media screen and (max-width: 768px) {
+  .todo-app {
+    padding: 15px;
+    margin: 0;
+    max-width: 100%;
+    border-radius: 0;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .todo-input,
+  .responsible-select,
+  .priority-select,
+  .time-select,
+  .date-picker,
+  .add-button {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .todo-metadata {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .responsible-tag,
+  .priority-tag,
+  .time-tag,
+  .due-date {
+    font-size: 0.8rem;
+    padding: 2px 6px;
+    min-width: auto;
+  }
+
+  .button-group {
+    flex-direction: column;
+    gap: 5px;
+    margin-left: 0;
+    margin-top: 10px;
+  }
+
+  .filters-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .filters {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .calendar-container {
+    padding: 10px;
+    margin-top: 10px;
+  }
+
+  /* Adjust calendar height for mobile */
+  .calendar-container .rbc-calendar {
+    height: 500px !important;
+  }
+}
