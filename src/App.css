@@ -568,8 +568,9 @@ body {
   /* More compact form */
   .form-row {
     flex-direction: column;
-    gap: 5px;
-    margin-bottom: 10px;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 0 2px;
   }
 
   /* Smaller inputs and buttons */
@@ -579,11 +580,23 @@ body {
   .time-select,
   .date-picker,
   .add-button {
-    width: 100%;
+    width: calc(100% - 4px);
     min-width: unset;
     padding: 8px;
     height: 35px;
     font-size: 14px;
+    margin: 2px 0;
+  }
+
+  /* Specific date picker adjustments */
+  .date-picker {
+    margin-right: 2px;
+    width: calc(100% - 6px);
+  }
+
+  /* Add button specific spacing */
+  .add-button {
+    margin-top: 4px;
   }
 
   /* Compact metadata */
