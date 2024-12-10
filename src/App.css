@@ -1,0 +1,239 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* Main container styles */
+.todo-app {
+  max-width: 600px;  /* Limit width for better readability */
+  margin: 0 auto;    /* Center the container */
+  padding: 20px;
+}
+
+/* Form container styles */
+.todo-form {
+  display: flex;     /* Use flexbox for layout */
+  gap: 10px;         /* Space between input and button */
+  margin-bottom: 20px;
+}
+
+/* Input field styles */
+.todo-input {
+  flex: 1;           /* Take up remaining space */
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Common button styles */
+.add-button, .delete-button {
+  padding: 8px 16px;
+  background-color: #646cff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Button hover effects */
+.add-button:hover, .delete-button:hover {
+  background-color: #535bf2;
+}
+
+/* Filter section styles */
+.filters {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+/* Individual filter button styles */
+.filters button {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Active filter button state */
+.filters button.active {
+  background-color: #646cff;
+  color: white;
+  border-color: #646cff;
+}
+
+/* Todo list container */
+.todo-list {
+  list-style: none;  /* Remove default bullet points */
+  padding: 0;
+}
+
+/* Individual todo item styles */
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  cursor: grab;
+  transition: background-color 0.2s;
+  user-select: none;  /* Prevent text selection while dragging */
+  background: white;  /* Ensure background is solid */
+}
+
+/* Delete button specific styles */
+.delete-button {
+  margin-left: auto;  /* Push button to the right */
+  background-color: #ff4444;
+}
+
+/* Delete button hover state */
+.delete-button:hover {
+  background-color: #cc0000;
+}
+
+/* Enhanced styles */
+.search-input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.category-select,
+.priority-select,
+.date-picker {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.todo-metadata {
+  display: flex;
+  gap: 10px;
+  margin-left: 20px;
+}
+
+.category-tag,
+.priority-tag {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: white;
+}
+
+/* Category colors */
+.category-tag.personal { background-color: #4CAF50; }
+.category-tag.work { background-color: #2196F3; }
+.category-tag.shopping { background-color: #FF9800; }
+.category-tag.health { background-color: #E91E63; }
+
+/* Priority colors */
+.priority-tag.urgent { background-color: #f44336; }
+.priority-tag.high { background-color: #ff9800; }
+.priority-tag.medium { background-color: #2196f3; }
+.priority-tag.low { background-color: #4caf50; }
+
+.due-date {
+  color: #666;
+  font-size: 12px;
+}
+
+/* Drag and drop styles */
+.todo-item:hover {
+  background-color: #f5f5f5;
+}
+
+.todo-item.dragging {
+  background: #f0f0f0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  opacity: 0.8;
+}
+
+/* Notification styles */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #4CAF50;
+  color: white;
+  padding: 15px 25px;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 1000;
+  animation: slideIn 0.5s ease-out;
+}
+
+.notifications-panel {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.notification-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.notification-item:hover {
+  background-color: #f5f5f5;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
