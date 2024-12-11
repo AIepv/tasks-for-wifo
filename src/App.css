@@ -539,9 +539,25 @@ body {
   border-radius: 4px !important;
 }
 
-.calendar-event.priority-normal { background-color: #4CAF50 !important; }
-.calendar-event.priority-importante { background-color: #FFC107 !important; }
-.calendar-event.priority-urgente { background-color: #F44336 !important; }
+.calendar-event.priority-normal { 
+  background-color: #4CAF50 !important; 
+  color: white !important;
+}
+.calendar-event.priority-importante { 
+  background-color: #FFC107 !important;
+  color: black !important;
+}
+.calendar-event.priority-urgente { 
+  background-color: #F44336 !important;
+  color: white !important;
+}
+
+/* Event color - Light blue */
+.calendar-event.event-type {
+  background-color: #E3F2FD !important;  /* Light blue */
+  color: #1976D2 !important;            /* Darker blue for text */
+  border: 1px solid #90CAF9 !important; /* Medium blue border */
+}
 
 /* Mobile responsiveness */
 @media screen and (max-width: 768px) {
@@ -846,4 +862,121 @@ body {
     margin-top: 10px;
     gap: 10px;
   }
+}
+
+.type-selector {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  justify-content: center;
+}
+
+.type-selector button {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.type-selector button.active {
+  background: #646cff;
+  color: white;
+  border-color: #646cff;
+}
+
+.time-input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+/* Mobile adjustments */
+@media screen and (max-width: 768px) {
+  .type-selector {
+    margin-bottom: 10px;
+  }
+  
+  .time-input {
+    width: 100%;
+    margin: 2px 0;
+  }
+}
+
+.urgent-icon {
+  font-size: 1.2rem;
+  color: #f44336;
+  margin: 0 4px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Mobile adjustments */
+@media screen and (max-width: 768px) {
+  .urgent-icon {
+    font-size: 1rem;
+  }
+}
+
+.responsible-select-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.responsible-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.responsible-checkbox:hover {
+  background-color: #f5f5f5;
+}
+
+.responsible-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+/* Mobile adjustments */
+@media screen and (max-width: 768px) {
+  .responsible-select-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* Task and Event item styles */
+.todo-item {
+  /* ... existing styles ... */
+}
+
+/* Add specific styles for events */
+.todo-item.event-type {
+  background-color: #E3F2FD;  /* Light blue background */
+  border: 1px solid #90CAF9;  /* Medium blue border */
+}
+
+.todo-item.event-type .time-tag {
+  background-color: #1976D2;  /* Darker blue for time tag */
+  color: white;
 }

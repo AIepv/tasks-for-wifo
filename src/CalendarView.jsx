@@ -23,14 +23,27 @@ const localizer = dateFnsLocalizer({
 export default function CalendarView({ todos }) {
   const [selectedTask, setSelectedTask] = useState(null);
 
-  const events = todos.map(todo => ({
-    id: todo.id,
-    title: `${todo.text} (${todo.responsible})`,
-    start: new Date(todo.dueDate),
-    end: new Date(todo.dueDate),
-    allDay: true,
-    resource: todo,
-  }))
+  const events = todos.map(todo => {
+    const date = new Date(todo.dueDate);
+    
+    // If it's an event with startTime, parse the time
+    if (todo.type === 'event' && todo.startTime) {
+      const [hours, minutes] = todo.startTime.split(':');
+      date.setHours(parseInt(hours), parseInt(minutes));
+    } else {
+      // For tasks, set a default time (beginning of day)
+      date.setHours(9, 0, 0);
+    }
+
+    return {
+      id: todo.id,
+      title: `${todo.text} (${todo.responsible})`,
+      start: date,
+      end: date,
+      allDay: todo.type !== 'event',
+      resource: todo,
+    };
+  });
 
   return (
     <div className="calendar-container">
@@ -50,7 +63,9 @@ export default function CalendarView({ todos }) {
           day: "Día"
         }}
         eventPropGetter={(event) => ({
-          className: `calendar-event priority-${event.resource.priority.toLowerCase()}`
+          className: `calendar-event ${event.resource.type === 'task' ? 
+            `priority-${event.resource.priority.toLowerCase()}` : 
+            'event-type'}`
         })}
         onSelectEvent={(event) => setSelectedTask(event.resource)}
       />
@@ -59,5 +74,5 @@ export default function CalendarView({ todos }) {
         onClose={() => setSelectedTask(null)} 
       />
     </div>
-  )
+  );
 } 

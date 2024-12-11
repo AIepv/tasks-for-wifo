@@ -44,14 +44,16 @@ function App() {
   const [notifications, setNotifications] = useState([])
   const [showNotification, setShowNotification] = useState(false)
   const [notificationMessage, setNotificationMessage] = useState('')
-  const [responsible, setResponsible] = useState('Marian')
+  const [responsible, setResponsible] = useState(['Marian'])
   const [responsibleFilter, setResponsibleFilter] = useState('todos')
   const [timeOfDay, setTimeOfDay] = useState('morning')
   const [editingTodo, setEditingTodo] = useState(null);
   const [view, setView] = useState('list'); // 'list' or 'calendar'
+  const [itemType, setItemType] = useState('task'); // 'task' or 'event'
+  const [startTime, setStartTime] = useState('09:00');
 
   // Categories and priorities
-  const priorities = ['Normal', 'Importante', 'Urgente']
+  const priorities = ['Normal', 'Urgente']
   const responsiblePersons = ['Marian', 'Javier', 'Rosi']
   const timeOptions = ['Mañana', 'Tarde', 'Noche']
 
@@ -106,22 +108,29 @@ function App() {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
-    const newTodo = {
+    const newItem = {
       text: inputValue,
       completed: false,
-      priority,
       responsible,
-      timeOfDay,
+      type: itemType,
       dueDate: dueDate.toISOString(),
-      subtasks: [],
-      created: new Date().toISOString()
+      created: new Date().toISOString(),
+      ...(itemType === 'task' 
+        ? {
+            priority,
+            timeOfDay,
+          }
+        : {
+            startTime,
+          }
+      )
     };
 
     try {
-      await addDoc(collection(db, 'todos'), newTodo);
+      await addDoc(collection(db, 'todos'), newItem);
       setInputValue('');
     } catch (error) {
-      console.error("Error adding todo: ", error);
+      console.error("Error adding item: ", error);
     }
   };
 
@@ -275,6 +284,24 @@ function App() {
         className="search-input"
       />
 
+      {/* Add type selector above the input */}
+      <div className="type-selector">
+        <button 
+          onClick={() => setItemType('task')} 
+          className={itemType === 'task' ? 'active' : ''}
+          type="button"
+        >
+          Tarea
+        </button>
+        <button 
+          onClick={() => setItemType('event')} 
+          className={itemType === 'event' ? 'active' : ''}
+          type="button"
+        >
+          Evento
+        </button>
+      </div>
+
       {/* Enhanced todo form */}
       <form onSubmit={addTodo} className="todo-form">
         <div className="form-row">
@@ -288,35 +315,55 @@ function App() {
         </div>
         
         <div className="form-row">
-          <select 
-            value={responsible} 
-            onChange={(e) => setResponsible(e.target.value)}
-            className="responsible-select"
-          >
+          <div className="responsible-select-group">
             {responsiblePersons.map(person => (
-              <option key={person} value={person}>{person}</option>
+              <label key={person} className="responsible-checkbox">
+                <input
+                  type="checkbox"
+                  checked={responsible.includes(person)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setResponsible([...responsible, person]);
+                    } else {
+                      setResponsible(responsible.filter(r => r !== person));
+                    }
+                  }}
+                />
+                {person}
+              </label>
             ))}
-          </select>
+          </div>
 
-          <select 
-            value={priority} 
-            onChange={(e) => setPriority(e.target.value)}
-            className="priority-select"
-          >
-            {priorities.map(pri => (
-              <option key={pri} value={pri}>{pri}</option>
-            ))}
-          </select>
+          {itemType === 'task' ? (
+            <select 
+              value={priority} 
+              onChange={(e) => setPriority(e.target.value)}
+              className="priority-select"
+            >
+              {priorities.map(pri => (
+                <option key={pri} value={pri}>{pri}</option>
+              ))}
+            </select>
+          ) : (
+            <input
+              type="time"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              className="time-input"
+            />
+          )}
 
-          <select 
-            value={timeOfDay} 
-            onChange={(e) => setTimeOfDay(e.target.value)}
-            className="time-select"
-          >
-            {timeOptions.map(time => (
-              <option key={time} value={time}>{time}</option>
-            ))}
-          </select>
+          {itemType === 'task' && (
+            <select 
+              value={timeOfDay} 
+              onChange={(e) => setTimeOfDay(e.target.value)}
+              className="time-select"
+            >
+              {timeOptions.map(time => (
+                <option key={time} value={time}>{time}</option>
+              ))}
+            </select>
+          )}
 
           <DatePicker
             selected={dueDate}
@@ -325,7 +372,9 @@ function App() {
             className="date-picker"
           />
 
-          <button type="submit" className="add-button">Agregar</button>
+          <button type="submit" className="add-button">
+            {itemType === 'task' ? 'Agregar Tarea' : 'Agregar Evento'}
+          </button>
         </div>
       </form>
 
@@ -377,7 +426,7 @@ function App() {
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
-                        className={`todo-item priority-${todo.priority} ${snapshot.isDragging ? 'dragging' : ''}`}
+                        className={`todo-item ${todo.type === 'event' ? 'event-type' : `priority-${todo.priority}`} ${snapshot.isDragging ? 'dragging' : ''}`}
                       >
                         <input
                           type="checkbox"
@@ -393,15 +442,23 @@ function App() {
                               onChange={(e) => setEditingTodo({...editingTodo, text: e.target.value})}
                               className="todo-input"
                             />
-                            <select 
-                              value={editingTodo.responsible}
-                              onChange={(e) => setEditingTodo({...editingTodo, responsible: e.target.value})}
-                              className="responsible-select"
-                            >
+                            <div className="responsible-select-group">
                               {responsiblePersons.map(person => (
-                                <option key={person} value={person}>{person}</option>
+                                <label key={person} className="responsible-checkbox">
+                                  <input
+                                    type="checkbox"
+                                    checked={editingTodo.responsible.includes(person)}
+                                    onChange={(e) => {
+                                      const newResponsible = e.target.checked
+                                        ? [...editingTodo.responsible, person]
+                                        : editingTodo.responsible.filter(r => r !== person);
+                                      setEditingTodo({...editingTodo, responsible: newResponsible});
+                                    }}
+                                  />
+                                  {person}
+                                </label>
                               ))}
-                            </select>
+                            </div>
                             <select 
                               value={editingTodo.priority}
                               onChange={(e) => setEditingTodo({...editingTodo, priority: e.target.value})}
@@ -455,15 +512,34 @@ function App() {
                               {todo.text}
                             </span>
                             <div className="todo-metadata">
-                              <span className={`responsible-tag ${todo.responsible.toLowerCase()}`}>
-                                {todo.responsible}
-                              </span>
-                              <span className={`priority-tag ${todo.priority}`}>
-                                {todo.priority}
-                              </span>
-                              <span className="time-tag">
-                                {todo.timeOfDay}
-                              </span>
+                              {Array.isArray(todo.responsible) ? (
+                                <div className="responsible-tags">
+                                  {todo.responsible.map(person => (
+                                    <span 
+                                      key={person} 
+                                      className={`responsible-tag ${person.toLowerCase()}`}
+                                    >
+                                      {person}
+                                    </span>
+                                  ))}
+                                </div>
+                              ) : (
+                                <span className={`responsible-tag ${todo.responsible.toLowerCase()}`}>
+                                  {todo.responsible}
+                                </span>
+                              )}
+                              {todo.type === 'task' && todo.priority === 'Urgente' && (
+                                <span className="urgent-icon" title="Urgente">❗</span>
+                              )}
+                              {todo.type === 'task' ? (
+                                <span className="time-tag">
+                                  {todo.timeOfDay}
+                                </span>
+                              ) : (
+                                <span className="time-tag">
+                                  {todo.startTime}
+                                </span>
+                              )}
                               <span className="due-date">
                                 Vence: {new Date(todo.dueDate).toLocaleDateString('es-ES', {
                                   day: '2-digit',
